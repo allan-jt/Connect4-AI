@@ -1,4 +1,6 @@
 # Set up pygame: https://realpython.com/pygame-a-primer/
+from asyncio import ALL_COMPLETED
+from time import sleep
 import utils
 import random
 import pygame
@@ -39,10 +41,29 @@ class Player(pygame.sprite.Sprite):
 
 player = Player()
 
-# Shape: rectangle
-rectangle = pygame.Surface((50, 50))
-rectangle.fill(BLACK)
-rect = rectangle.get_rect()
+# Create enemy
+class Enemy(pygame.sprite.Sprite):
+	def __init__(self):
+		super().__init__()
+		self.surf = pygame.Surface((20, 10))
+		self.surf.fill(WHITE)
+		self.rect = self.surf.get_rect(
+			center = (
+				random.randint(SCREEN_WIDTH + 20, SCREEN_WIDTH + 100),
+				random.randint(0, SCREEN_WIDTH),
+			)
+		)
+		self.speed = random.randint(5, 20)
+	
+	def update(self):
+		self.rect.move_ip(-self.speed, 0)
+		if self.rect.right < 0:
+			self.kill()
+
+# Group all sprites
+enemies = pygame.sprite.Group()
+all_sprites = pygame.sprite.Group()
+all_sprites.add(player)
 
 # Set up screen
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -57,10 +78,13 @@ while running:
 	
 	key_pressed = pygame.key.get_pressed()
 	player.update(key_pressed)
+	for entity in enemies:
+		entity.update()
 
 	# Update screen
 	screen.fill(BLACK)
-	screen.blit(player.surf, player.rect)
+	for entity in all_sprites:
+		screen.blit(entity.surf, entity.rect)
 	pygame.display.flip()
 
 pygame.quit()
