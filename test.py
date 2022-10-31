@@ -1,12 +1,11 @@
 # Set up pygame: https://realpython.com/pygame-a-primer/
-from asyncio import ALL_COMPLETED
 from time import sleep
 import utils
 import random
 import pygame
 from pygame import (
 	K_UP, K_DOWN, K_LEFT, K_RIGHT,
-	K_ESCAPE, KEYDOWN, QUIT
+	K_ESCAPE, KEYDOWN, QUIT, RLEACCEL
 )
 pygame.init()
 
@@ -17,12 +16,15 @@ PLAYER_MOVMNT = 5
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 
+# Set up screen
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+
 # Create player
 class Player(pygame.sprite.Sprite):
 	def __init__(self):
 		super().__init__()
-		self.surf = pygame.Surface((75, 60))
-		self.surf.fill(WHITE)
+		self.surf = pygame.image.load("materials/jet.png").convert()
+		self.surf.set_colorkey(WHITE, RLEACCEL)
 		self.rect = self.surf.get_rect()
 
 	def update(self, key_pressed):
@@ -45,8 +47,8 @@ player = Player()
 class Enemy(pygame.sprite.Sprite):
 	def __init__(self):
 		super().__init__()
-		self.surf = pygame.Surface((20, 10))
-		self.surf.fill(WHITE)
+		self.surf = pygame.image.load("materials/missile.png").convert()
+		self.surf.set_colorkey(WHITE, RLEACCEL)
 		self.rect = self.surf.get_rect(
 			center = (
 				random.randint(SCREEN_WIDTH + 20, SCREEN_WIDTH + 100),
@@ -65,27 +67,38 @@ enemies = pygame.sprite.Group()
 all_sprites = pygame.sprite.Group()
 all_sprites.add(player)
 
-# Set up screen
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+# Custom Events
+ADDENEMY = pygame.USEREVENT + 1
+pygame.time.set_timer(ADDENEMY, 250)
 
 # Main loop
+clock = pygame.time.Clock()
 running = True
 pygame.event.clear()
 while running:
 	for event in pygame.event.get():
 		if (event.type == KEYDOWN and event.key == K_ESCAPE) or event.type == QUIT:
 			running = False
+		elif event.type == ADDENEMY:
+			new_enemy = Enemy()
+			all_sprites.add(new_enemy)
+			enemies.add(new_enemy)
 	
 	key_pressed = pygame.key.get_pressed()
 	player.update(key_pressed)
-	for entity in enemies:
-		entity.update()
+	enemies.update()
 
 	# Update screen
 	screen.fill(BLACK)
 	for entity in all_sprites:
 		screen.blit(entity.surf, entity.rect)
+
+	if pygame.sprite.spritecollideany(player, enemies):
+		player.kill()
+		running = False
+	
 	pygame.display.flip()
+	clock.tick(30)
 
 pygame.quit()
 
