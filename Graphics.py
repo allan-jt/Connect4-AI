@@ -8,7 +8,7 @@ class Circle(pygame.sprite.Sprite):
 		self.position = [positionX, positionY]
 		self.color = color
 		
-		self.image = pygame.Surface(self.getScaledDimension())
+		self.image = pygame.Surface(self.getScaledDimension()).convert_alpha()
 		self.image.fill(BLUE)
 		self.image.set_colorkey(BLUE, pygame.RLEACCEL)
 		
@@ -29,10 +29,15 @@ class Circle(pygame.sprite.Sprite):
 		scaledY = (circleMaxHeight / 2) + (circleMaxHeight * self.position[Y])
 		self.rect.x = scaledX - CIRCLE_RADIUS
 		self.rect.y = scaledY - CIRCLE_RADIUS
+	
+	def update(self) -> None:
+		pygame.draw.circle(self.image, self.color, self.getScaledCenter(), CIRCLE_RADIUS)
 		
 
 class Engine():
+	sprite_group = pygame.sprite.Group()
 	all_pieces = {}
+	current_color = YELLOW
 	screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
 	def __init__(self) -> None:
@@ -43,18 +48,52 @@ class Engine():
 		for height in range(GAME_HEIGHT):
 			for width in range(GAME_WIDTH):
 				new_circle = Circle(width, height)
+				self.sprite_group.add(new_circle)
 				self.all_pieces[(width, height)] = new_circle
 				self.screen.blit(new_circle.image, new_circle.rect)
 		pygame.display.flip()
 	
 	def runGame(self) -> None:
-		pygame.event.clear()
 		running = True
 		while running:
 			for event in pygame.event.get():
 				if event.type == pygame.QUIT:
-					running == False
+					running = False
+				if event.type == pygame.MOUSEBUTTONDOWN:
+					self.click = True
+			
+			if not self.play():
+				running = False
+			self.updateScreen()
+			self.click = False
 		pygame.quit()
+
+	def updateScreen(self) -> None:
+		for piece in self.sprite_group:
+			piece.update()
+			self.screen.blit(piece.image, piece.rect)
+		pygame.display.flip()
+	
+	def play(self) -> bool:
+		if not pygame.mouse.get_pressed()[0] or not self.click:
+			return True
+		
+		position = pygame.mouse.get_pos()
+		width = position[X] // (SCREEN_WIDTH / GAME_WIDTH)
+		for height in range(GAME_HEIGHT - 1, -1, -1):
+			piece = self.all_pieces[(width, height)]
+			if piece.color == WHITE:
+				piece.color = self.current_color
+				self.swapColor()
+				break
+	
+		return True
+	
+	def swapColor(self) -> None:
+		if self.current_color == YELLOW:
+			self.current_color = RED
+		else:
+			self.current_color = YELLOW
 
 
 
