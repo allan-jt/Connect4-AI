@@ -1,4 +1,4 @@
-from Constants import *
+from Minimax import *
 import pygame
 pygame.init()
 
@@ -35,15 +35,14 @@ class Circle(pygame.sprite.Sprite):
 		
 
 class Engine():
-	sprite_group = pygame.sprite.Group()
-	all_pieces = {}
-	current_color = YELLOW
-	screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-
 	def __init__(self) -> None:
+		self.sprite_group = pygame.sprite.Group()
+		self.all_pieces = {}
+		self.current_color = YELLOW
 		self.initScreen()
 
 	def	initScreen(self) -> None:
+		self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 		self.screen.fill(BLUE)
 		for height in range(GAME_HEIGHT):
 			for width in range(GAME_WIDTH):
@@ -80,14 +79,17 @@ class Engine():
 		
 		position = pygame.mouse.get_pos()
 		width = position[X] // (SCREEN_WIDTH / GAME_WIDTH)
+		game_finish = False
+
 		for height in range(GAME_HEIGHT - 1, -1, -1):
 			piece = self.all_pieces[(width, height)]
 			if piece.color == WHITE:
 				piece.color = self.current_color
+				game_finish = check_win(self.all_pieces, (width, height), piece.color)
 				self.swapColor()
 				break
 	
-		return True
+		return not game_finish
 	
 	def swapColor(self) -> None:
 		if self.current_color == YELLOW:

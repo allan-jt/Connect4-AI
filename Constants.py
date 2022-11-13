@@ -6,6 +6,7 @@ CIRCLE_RADIUS = 45
 # Connect4 features
 GAME_WIDTH = 7
 GAME_HEIGHT = 6
+WIN = 4
 
 # Colors
 RED = (255, 0, 0)
