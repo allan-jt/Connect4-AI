@@ -3,7 +3,7 @@ import pygame
 pygame.init()
 
 class Circle(pygame.sprite.Sprite):
-	def __init__(self, positionX, positionY, color = WHITE) -> None:
+	def __init__(self, positionX: int, positionY: int, color: tuple = WHITE) -> None:
 		super().__init__()
 		self.position = [positionX, positionY]
 		self.color = color
@@ -86,16 +86,10 @@ class Engine():
 			if piece.color == WHITE:
 				piece.color = self.current_color
 				game_finish = check_win(self.all_pieces, (width, height), piece.color)
-				self.swapColor()
+				self.current_color = swapColor(self.current_color)
 				break
 	
 		return not game_finish
-	
-	def swapColor(self) -> None:
-		if self.current_color == YELLOW:
-			self.current_color = RED
-		else:
-			self.current_color = YELLOW
 
 
 
