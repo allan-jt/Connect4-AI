@@ -1,30 +1,53 @@
 from Constants import *
-import random
+from copy import deepcopy
 
-#	UTILS
-def swapColor(color: tuple) -> tuple:
-	if color == YELLOW:
-		return RED
-	if color == RED:
-		return YELLOW
-	return color
+def	minimax(pieces: dict, turn: tuple, alpha: float, beta: float) -> tuple:
+	available_pieces = get_free_pieces(pieces)
+	if len(available_pieces) == 1: # Base case
+		return available_pieces[0].position
+	
+	ideal_position: tuple = available_pieces[0].position
+	if turn == RED:	# maximizing player (computer)
+		max_val = float('-inf')
+		for piece in available_pieces:
+			value = speculate(pieces, piece.position, turn, alpha, beta)
+			alpha = max(alpha, value)
+			if value > max_val:
+				max_val = value
+				ideal_position = piece.position
+			if beta <= alpha:
+				break
+	else:			# minimizing player (human)
+		min_val = float('inf')
+		for piece in available_pieces:
+			value = speculate(pieces, piece.position, turn, alpha, beta)
+			beta = min(beta, value)
+			if value < min_val:
+				min_val = value
+				ideal_position = piece.position
+			if beta <= alpha:
+				break
 
-def	spaces_left(all_pieces: dict) -> int:
-	spaces = 0
-	for piece in all_pieces.values():
-		if piece.color == WHITE:
-			spaces += 1
-	return spaces
+	return ideal_position
 
-def	within_bounds(positionX: int, positionY: int) -> bool:
-	return (positionX < GAME_WIDTH and positionY < GAME_HEIGHT
-		and positionX >= 0 and positionY >= 0)
-
-def	same_color(all_pieces: dict, position: tuple, color: tuple) -> bool:
-	return (within_bounds(position[X], position[Y])
-		and all_pieces[position].color == color)
+def	speculate(pieces: dict, position: tuple, turn: tuple, 
+	alpha: float, beta: float) -> float:
+	
+	pieces[position].color = turn
+	if not check_win(pieces, position, turn):
+		minimax(pieces, swap_color(turn), alpha, beta)
+	
+	percent_left = 100 * spaces_left(pieces) / (GAME_HEIGHT * GAME_WIDTH)
+	if turn == YELLOW:
+		percent_left *= -1
+	
+	return percent_left
 
 #	VALIDATE WIN
+def	check_win(all_pieces: dict, move: tuple, turn: tuple) -> bool:
+	return (check_orthogonal_win(all_pieces, move, turn) 
+		 or check_diagonal_win(all_pieces, move, turn))
+
 def check_orthogonal_win(all_pieces: dict, move: tuple, turn: tuple) -> bool:
 	counter = 0	# check horizontal
 	for width in range(GAME_WIDTH):
@@ -69,14 +92,35 @@ def	check_diagonal_win(pieces: dict, move: tuple, turn: tuple) -> bool:
 
 	return False
 
-def	check_win(all_pieces: dict, move: tuple, turn: tuple) -> bool:
-	return (check_orthogonal_win(all_pieces, move, turn) 
-		 or check_diagonal_win(all_pieces, move, turn))
+#	UTILS
+def swap_color(color: tuple) -> tuple:
+	if color == YELLOW:
+		return RED
+	if color == RED:
+		return YELLOW
+	return color
 
-#	MINIMAX
-def	speculate(pieces: dict, turn: tuple, alpha = float('inf'), beta = float('-inf')) -> int:
-	pass
+def	spaces_left(pieces: dict) -> int:
+	spaces = 0
+	for piece in pieces.values():
+		if piece.color == WHITE:
+			spaces += 1
+	return spaces
 
-def	minimax(pieces: dict, turn: tuple) -> tuple:
-	
-	pass
+def	get_free_pieces(pieces: dict) -> list:
+	free_pieces: list = []
+	for width in range(GAME_WIDTH):
+		for height in range(GAME_HEIGHT - 1, -1, -1):
+			piece = pieces[(width, height)]
+			if piece.color == WHITE:
+				free_pieces.append(piece)
+				break
+	return free_pieces
+
+def	within_bounds(positionX: int, positionY: int) -> bool:
+	return (0 <= positionX < GAME_WIDTH 
+		and 0 <= positionY < GAME_HEIGHT)
+
+def	same_color(all_pieces: dict, position: tuple, color: tuple) -> bool:
+	return (within_bounds(position[X], position[Y])
+		and all_pieces[position].color == color)

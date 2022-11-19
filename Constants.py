@@ -17,4 +17,6 @@ BLACK = (0, 0, 0)
 
 # Miscellaneous
 X = 0
+A = 0
 Y = 1
+B = 1

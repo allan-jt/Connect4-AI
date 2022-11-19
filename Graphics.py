@@ -5,7 +5,7 @@ pygame.init()
 class Circle(pygame.sprite.Sprite):
 	def __init__(self, positionX: int, positionY: int, color: tuple = WHITE) -> None:
 		super().__init__()
-		self.position = [positionX, positionY]
+		self.position = (positionX, positionY)
 		self.color = color
 		
 		self.image = pygame.Surface(self.getScaledDimension()).convert_alpha()
@@ -33,7 +33,6 @@ class Circle(pygame.sprite.Sprite):
 	def update(self) -> None:
 		pygame.draw.circle(self.image, self.color, self.getScaledCenter(), CIRCLE_RADIUS)
 		
-
 class Engine():
 	def __init__(self) -> None:
 		self.sprite_group = pygame.sprite.Group()
@@ -86,10 +85,9 @@ class Engine():
 			if piece.color == WHITE:
 				piece.color = self.current_color
 				game_finish = check_win(self.all_pieces, (width, height), piece.color)
-				self.current_color = swapColor(self.current_color)
+		#		self.current_color = swap_color(self.current_color)
+				if not game_finish and spaces_left(self.all_pieces) != 0:
+					self.all_pieces[minimax(deepcopy(self.all_pieces), RED, float('-inf'), float('inf'))].color = RED
 				break
 	
 		return not game_finish
-
-
-
