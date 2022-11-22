@@ -37,6 +37,7 @@ class Engine():
 	def __init__(self) -> None:
 		self.sprite_group = pygame.sprite.Group()
 		self.all_pieces = {}
+		self.board = {}
 		self.current_color = YELLOW
 		self.initScreen()
 
@@ -48,6 +49,7 @@ class Engine():
 				new_circle = Circle(width, height)
 				self.sprite_group.add(new_circle)
 				self.all_pieces[(width, height)] = new_circle
+				self.board[(width, height)] = WHITE
 				self.screen.blit(new_circle.image, new_circle.rect)
 		pygame.display.flip()
 	
@@ -84,10 +86,13 @@ class Engine():
 			piece = self.all_pieces[(width, height)]
 			if piece.color == WHITE:
 				piece.color = self.current_color
-				game_finish = check_win(self.all_pieces, (width, height), piece.color)
+				self.board[piece.position] = self.current_color
+				game_finish = check_win(self.board, (width, height), piece.color)
 		#		self.current_color = swap_color(self.current_color)
-				if not game_finish and spaces_left(self.all_pieces) != 0:
-					self.all_pieces[minimax(deepcopy(self.all_pieces), RED, float('-inf'), float('inf'))].color = RED
+				if not game_finish and spaces_left(self.board) != 0:
+					ai_position = minimax(deepcopy(self.board), RED, -INFINITY, INFINITY)
+					self.all_pieces[ai_position].color = RED
+					self.board[ai_position] = RED
 				break
 	
 		return not game_finish

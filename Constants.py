@@ -20,3 +20,4 @@ X = 0
 A = 0
 Y = 1
 B = 1
+INFINITY = float('inf')
