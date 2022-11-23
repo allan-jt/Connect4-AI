@@ -88,11 +88,13 @@ class Engine():
 				piece.color = self.current_color
 				self.board[piece.position] = self.current_color
 				game_finish = check_win(self.board, (width, height), piece.color)
-		#		self.current_color = swap_color(self.current_color)
-				if not game_finish and spaces_left(self.board) != 0:
-					ai_position = minimax(deepcopy(self.board), RED, -INFINITY, INFINITY)
-					self.all_pieces[ai_position].color = RED
-					self.board[ai_position] = RED
+				print(calculate_score(self.board))
+				self.current_color = swap_color(self.current_color)
+
+		#		if not game_finish and spaces_left(self.board) != 0:
+		#			ai_position = minimax(deepcopy(self.board), RED, -INFINITY, INFINITY)
+		#			self.all_pieces[ai_position].color = RED
+		#			self.board[ai_position] = RED
 				break
 	
 		return not game_finish

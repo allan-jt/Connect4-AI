@@ -16,8 +16,7 @@ WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 
 # Miscellaneous
-X = 0
-A = 0
-Y = 1
-B = 1
-INFINITY = float('inf')
+X = A = 0
+Y = B = 1
+INFINITY = 1000000
+SCORING = {4: 100, 3: 20, 2: 3, 1: 0, 0: 0}
