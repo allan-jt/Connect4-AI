@@ -18,5 +18,6 @@ BLACK = (0, 0, 0)
 # Miscellaneous
 X = A = 0
 Y = B = 1
-INFINITY = 1000000
-SCORING = {4: 100, 3: 20, 2: 3, 1: 0, 0: 0}
+INFINITY = float('inf')
+SCORING = {7: 400, 6: 300, 5: 200, 4: 100, 3: 50, 2: 25, 1: 0, 0: 0}
+DEPTH = 6

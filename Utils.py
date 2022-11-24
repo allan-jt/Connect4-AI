@@ -117,6 +117,7 @@ def	get_diagonal_score(board: type, direction_up: bool, position: tuple):
 			turn = swap_color(turn)
 			counter = 0
 		counter += (board[(posX, posY)] == turn)
+#	print(direction_up, " ", counter, " ", turn)
 	scores[turn] += SCORING[counter]
 	return (scores[RED] - scores[YELLOW])
 
@@ -168,3 +169,10 @@ def	within_bounds(positionX: int, positionY: int) -> bool:
 def	same_color(board: dict, position: tuple, color: tuple) -> bool:
 	return (within_bounds(position[X], position[Y])
 		and board[position] == color)
+
+def copy_dict(board: dict) -> dict:
+	copied_board = {}
+	
+	for key in board.keys():
+		copied_board[key] = board[key]
+	return copied_board
