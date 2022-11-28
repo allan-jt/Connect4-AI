@@ -50,78 +50,6 @@ def	check_diagonal_win(board: dict, move: tuple, turn: tuple) -> bool:
 	return False
 
 
-#	SCORE CALCULATOR
-def	calculate_score(board: tuple) -> int:
-	# Score can be refined by checking whether the current
-	# link can be expanded. Think about this later.
-	d_score = diagonal_score(board)
-	o_score = orthogonal_score(board)
-#	print("Diagonal: ", d_score, " Orthogonal: ", o_score)
-	return (d_score + o_score)
-
-def	orthogonal_score(board: type) -> int:
-	scores = {RED: 0, YELLOW: 0}
-	
-	turn = RED	# score horizontal
-	for height in range(GAME_HEIGHT):	
-		counter = 0
-		for width in range(GAME_WIDTH):
-			if board[(width, height)] != turn:
-				scores[turn] += SCORING[counter]
-				turn = swap_color(turn)
-				counter = 0
-			counter += (board[(width, height)] == turn)
-		scores[turn] += SCORING[counter]
-
-	turn = RED	# score vertical
-	for width in range(GAME_WIDTH):	
-		counter = 0
-		for height in range(GAME_HEIGHT):
-			if board[(width, height)] != turn:
-				scores[turn] += SCORING[counter]
-				turn = swap_color(turn)
-				counter = 0
-			counter += (board[(width, height)] == turn)
-		scores[turn] += SCORING[counter]
-
-	return (scores[RED] - scores[YELLOW])
- 
-def	diagonal_score(board: type) -> int:
-	score = 0
-	up = True		# Upward scoring
-	down = False	# downward scoring
-
-	for height in range(GAME_HEIGHT):
-		score += get_diagonal_score(board, up, (0, height))
-		score += get_diagonal_score(board, down, (0, height))
-	
-	for width in range(1, GAME_WIDTH):
-		score += get_diagonal_score(board, up, (width, GAME_HEIGHT - 1))
-		score += get_diagonal_score(board, down, (width, 0))
-		
-	return score
-	
-def	get_diagonal_score(board: type, direction_up: bool, position: tuple):
-	scores = {RED: 0, YELLOW: 0}
-	posX = position[X]
-	posY = position[Y]
-	counter = 0
-	turn = RED
-	i = 1 if direction_up else -1
-
-	while within_bounds(posX := posX - 1, posY := posY + i):
-		continue
-	while within_bounds(posX := posX + 1, posY := posY - i):
-		if board[(posX, posY)] != turn:
-			scores[turn] += SCORING[counter]
-			turn = swap_color(turn)
-			counter = 0
-		counter += (board[(posX, posY)] == turn)
-#	print(direction_up, " ", counter, " ", turn)
-	scores[turn] += SCORING[counter]
-	return (scores[RED] - scores[YELLOW])
-
-
 #	OTHER UTILITIES
 def swap_color(color: tuple) -> tuple:
 	if color == YELLOW:
@@ -159,7 +87,7 @@ def	get_free_spaces(board: dict, turn: tuple) -> list:
 		board[space] = WHITE
 
 	if len(win_lose_spaces) > 0:
-		return win_lose_spaces
+		return free_spaces #win_lose_spaces
 	return free_spaces
 
 def	within_bounds(positionX: int, positionY: int) -> bool:
@@ -176,3 +104,8 @@ def copy_dict(board: dict) -> dict:
 	for key in board.keys():
 		copied_board[key] = board[key]
 	return copied_board
+
+def increment(position: tuple, x_step: int, y_step: int) -> tuple:
+	posX = position[X] + x_step
+	posY = position[Y] + y_step
+	return (posX, posY)

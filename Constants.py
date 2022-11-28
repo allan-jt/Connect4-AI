@@ -15,9 +15,15 @@ BLUE = (0, 0, 255)
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 
+# Directions (x, y)
+HORIZONTAL = (1, 0)
+VERTICAL = (0, 1)
+DIAGONAL_UP = (1, -1)
+DIAGONAL_DOWN = (1, 1)
+
 # Miscellaneous
 X = A = 0
 Y = B = 1
 INFINITY = float('inf')
-SCORING = {7: 400, 6: 300, 5: 200, 4: 100, 3: 50, 2: 25, 1: 0, 0: 0}
+SCORING = {7: 100, 6: 100, 5: 100, 4: 100, 3: 5, 2: 2, 1: 0, 0: 0}
 DEPTH = 6
