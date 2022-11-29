@@ -16,32 +16,30 @@ def	orthogonal_score(board: dict, cur_turn: tuple) -> int:
 	for posY in range(GAME_HEIGHT):
 		posX = 0
 		while posX < GAME_WIDTH:
-			whites, position = traverse(board, WHITE, (posX, posY), HORIZONTAL)
+			start_whites, position = traverse(board, WHITE, (posX, posY), HORIZONTAL)
 			if position[X] >= GAME_WIDTH:
 				break
+			
 			turn = board[position]
 			counter, position = traverse(board, turn, position, HORIZONTAL)
-			
 			posX = position[X]
-			start_white = (whites > 0)
-			end_white = (posX < GAME_WIDTH and board[position] == WHITE)
-			winning = (counter >= WIN)
-			scores[turn] += (SCORING[counter] * (start_white + end_white + winning))
+
+			end_whites, position = traverse(board, WHITE, position, HORIZONTAL)
+			scores[turn] += get_score(counter, start_whites, end_whites)
 	
 	for posX in range(GAME_WIDTH):
 		posY = 0
 		while posY < GAME_HEIGHT:
-			whites, position = traverse(board, WHITE, (posX, posY), VERTICAL)
+			start_whites, position = traverse(board, WHITE, (posX, posY), VERTICAL)
 			if position[Y] >= GAME_HEIGHT:
 				break
+			
 			turn = board[position]
 			counter, position = traverse(board, turn, position, VERTICAL)
-			
 			posY = position[Y]
-			start_white = (whites > 0)
-			end_white = (posY < GAME_HEIGHT and board[position] == WHITE)
-			winning = (counter >= WIN)
-			scores[turn] += (SCORING[counter] * (start_white + end_white + winning))
+
+			end_whites, position = traverse(board, WHITE, position, VERTICAL)
+			scores[turn] += get_score(counter, start_whites, end_whites)
 	
 	return (scores[RED] - scores[YELLOW])
 
@@ -62,16 +60,15 @@ def get_diagonal_score(board: type, direction: tuple, position: tuple, cur_turn:
 	scores = {RED: 0, YELLOW: 0}
 
 	while within_bounds(position[X], position[Y]):
-		whites, position = traverse(board, WHITE, position, direction)
+		start_whites, position = traverse(board, WHITE, position, direction)
 		if not within_bounds(position[X], position[Y]):
 			break
+		
 		turn = board[position]
 		counter, position = traverse(board, turn, position, direction)
 		
-		start_white = (whites > 0)
-		end_white = (within_bounds(position[X], position[Y]) and board[position] == WHITE)
-		winning = (counter >= WIN)
-		scores[turn] += (SCORING[counter] * (start_white + end_white + winning))
+		end_whites, tmp_position = traverse(board, WHITE, position, direction)
+		scores[turn] += get_score(counter, start_whites, end_whites)
 
 	return (scores[RED] - scores[YELLOW]) 
 
@@ -81,3 +78,12 @@ def	traverse(board: dict, turn: tuple, position: tuple, direction: tuple):
 		counter += 1
 		position = increment(position, direction[X], direction[Y])
 	return counter, position
+
+def	get_score(counter: int, start_whites: int, end_whites: int):
+	potential_start = (counter + start_whites) >= WIN
+	potential_end = (counter + end_whites) >= WIN
+	potential_mid = 0
+	if (counter + start_whites + end_whites) >= WIN and (start_whites * end_whites):
+		potential_mid = 1
+
+	return SCORING[counter] * (potential_start + potential_end + potential_mid)
