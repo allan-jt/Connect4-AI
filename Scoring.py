@@ -1,22 +1,16 @@
 from Utils import *
 
-#	SCORE CALCULATOR
 def	calculate_score(board: dict, turn: tuple) -> int:
-	# Score can be refined by checking whether the current
-	# link can be expanded. Think about this later.
+	return diagonal_score(board, turn) + orthogonal_score(board, turn)
 
-	d_score = diagonal_score(board, turn)
-	o_score = orthogonal_score(board, turn)
-#	print("Diagonal: ", d_score, " Orthogonal: ", o_score)
-	return (d_score + o_score)
-
+# 	ORTHOGONAL
 def	orthogonal_score(board: dict, cur_turn: tuple) -> int:
 	scores = {RED: 0, YELLOW: 0}
 
 	for posY in range(GAME_HEIGHT):
 		posX = 0
 		while posX < GAME_WIDTH:
-			start_whites, position = traverse(board, WHITE, (posX, posY), HORIZONTAL)
+			start_spaces, position = traverse(board, WHITE, (posX, posY), HORIZONTAL)
 			if position[X] >= GAME_WIDTH:
 				break
 			
@@ -24,13 +18,13 @@ def	orthogonal_score(board: dict, cur_turn: tuple) -> int:
 			counter, position = traverse(board, turn, position, HORIZONTAL)
 			posX = position[X]
 
-			end_whites, position = traverse(board, WHITE, position, HORIZONTAL)
-			scores[turn] += get_score(counter, start_whites, end_whites)
+			end_spaces, position = traverse(board, WHITE, position, HORIZONTAL)
+			scores[turn] += get_score(counter, start_spaces, end_spaces)
 	
 	for posX in range(GAME_WIDTH):
 		posY = 0
 		while posY < GAME_HEIGHT:
-			start_whites, position = traverse(board, WHITE, (posX, posY), VERTICAL)
+			start_spaces, position = traverse(board, WHITE, (posX, posY), VERTICAL)
 			if position[Y] >= GAME_HEIGHT:
 				break
 			
@@ -38,11 +32,12 @@ def	orthogonal_score(board: dict, cur_turn: tuple) -> int:
 			counter, position = traverse(board, turn, position, VERTICAL)
 			posY = position[Y]
 
-			end_whites, position = traverse(board, WHITE, position, VERTICAL)
-			scores[turn] += get_score(counter, start_whites, end_whites)
+			end_spaces, position = traverse(board, WHITE, position, VERTICAL)
+			scores[turn] += get_score(counter, start_spaces, end_spaces)
 	
 	return (scores[RED] - scores[YELLOW])
 
+#	DIAGONAL
 def	diagonal_score(board: type, cur_turn: tuple) -> int:
 	score = 0
 
@@ -60,18 +55,19 @@ def get_diagonal_score(board: type, direction: tuple, position: tuple, cur_turn:
 	scores = {RED: 0, YELLOW: 0}
 
 	while within_bounds(position[X], position[Y]):
-		start_whites, position = traverse(board, WHITE, position, direction)
+		start_spaces, position = traverse(board, WHITE, position, direction)
 		if not within_bounds(position[X], position[Y]):
 			break
 		
 		turn = board[position]
 		counter, position = traverse(board, turn, position, direction)
 		
-		end_whites, tmp_position = traverse(board, WHITE, position, direction)
-		scores[turn] += get_score(counter, start_whites, end_whites)
+		end_spaces, tmp_position = traverse(board, WHITE, position, direction)
+		scores[turn] += get_score(counter, start_spaces, end_spaces)
 
 	return (scores[RED] - scores[YELLOW]) 
 
+#	UTILITIES
 def	traverse(board: dict, turn: tuple, position: tuple, direction: tuple):
 	counter = 0
 	while same_color(board, position, turn):
@@ -79,11 +75,11 @@ def	traverse(board: dict, turn: tuple, position: tuple, direction: tuple):
 		position = increment(position, direction[X], direction[Y])
 	return counter, position
 
-def	get_score(counter: int, start_whites: int, end_whites: int):
-	potential_start = (counter + start_whites) >= WIN
-	potential_end = (counter + end_whites) >= WIN
+def	get_score(counter: int, start_spaces: int, end_spaces: int):
+	potential_start = (counter + start_spaces) >= WIN
+	potential_end = (counter + end_spaces) >= WIN
 	potential_mid = 0
-	if (counter + start_whites + end_whites) >= WIN and (start_whites * end_whites):
+	if (counter + start_spaces + end_spaces) >= WIN and (start_spaces * end_spaces):
 		potential_mid = 1
 
 	return SCORING[counter] * (potential_start + potential_end + potential_mid)

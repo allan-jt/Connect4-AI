@@ -1,5 +1,6 @@
 from Minimax import *
 import pygame
+import time
 pygame.init()
 
 class Circle(pygame.sprite.Sprite):
@@ -64,7 +65,6 @@ class Engine():
 			
 			if not self.play():
 				running = False
-			self.updateScreen()
 			self.click = False
 		pygame.quit()
 
@@ -75,26 +75,44 @@ class Engine():
 		pygame.display.flip()
 	
 	def play(self) -> bool:
+		if self.current_color == RED:
+			return self.AI_play()
 		if not pygame.mouse.get_pressed()[0] or not self.click:
 			return True
 		
+		return self.player_play()
+	
+	def	AI_play(self) -> bool:
+		print("\rI'm thinking     ", end="")
+		ai_position, val = minimax(copy_dict(self.board), RED, -INFINITY, INFINITY)
+		self.all_pieces[ai_position].color = RED
+		self.board[ai_position] = RED
+		self.current_color = swap_color(self.current_color)
+		self.updateScreen()
+		print("\rI've made my move", end="")
+
+		if check_win(self.board, ai_position, RED):
+			print("\nYou loose!")
+			time.sleep(10)
+			return False
+		return True
+	
+	def	player_play(self) -> bool:
 		position = pygame.mouse.get_pos()
 		width = position[X] // (SCREEN_WIDTH / GAME_WIDTH)
-		game_finish = False
 
 		for height in range(GAME_HEIGHT - 1, -1, -1):
 			piece = self.all_pieces[(width, height)]
-			if piece.color == WHITE:
-				piece.color = self.current_color
-				self.board[piece.position] = self.current_color
-				game_finish = check_win(self.board, (width, height), piece.color)
-			#	print(calculate_score(self.board, self.current_color))
-			#	self.current_color = swap_color(self.current_color)
+			if piece.color != WHITE:
+				continue
+			piece.color = self.current_color
+			self.board[piece.position] = self.current_color
+			self.updateScreen()
+			if check_win(self.board, (width, height), piece.color):
+				print("\nYou win")
+				time.sleep(10)
+				return False
+			self.current_color = swap_color(self.current_color)
+			break
 
-				if not game_finish and spaces_left(self.board) != 0:
-					ai_position, val = minimax(copy_dict(self.board), RED, -INFINITY, INFINITY)
-					self.all_pieces[ai_position].color = RED
-					self.board[ai_position] = RED
-				break
-	
-		return not game_finish
+		return True

@@ -52,6 +52,7 @@ def	check_diagonal_win(board: dict, move: tuple, turn: tuple) -> bool:
 
 #	OTHER UTILITIES
 def swap_color(color: tuple) -> tuple:
+	# Only swaps red for yellow and vice versa
 	if color == YELLOW:
 		return RED
 	if color == RED:
@@ -72,22 +73,6 @@ def	get_free_spaces(board: dict, turn: tuple) -> list:
 			if board[(width, height)] == WHITE:
 				free_spaces.append((width, height))
 				break
-	
-	win_lose_spaces: list = []	# win/lose spaces
-	enemy_turn = swap_color(turn)
-	for space in free_spaces:
-		board[space] = turn
-		if check_win(board, space, turn):
-			win_lose_spaces.append(space)
-			board[space] = WHITE
-			continue
-		board[space] = enemy_turn
-		if check_win(board, space, enemy_turn):
-			win_lose_spaces.append(space)
-		board[space] = WHITE
-
-	if len(win_lose_spaces) > 0:
-		return free_spaces #win_lose_spaces
 	return free_spaces
 
 def	within_bounds(positionX: int, positionY: int) -> bool:
